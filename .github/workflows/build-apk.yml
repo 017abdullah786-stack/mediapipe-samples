@@ -1,0 +1,38 @@
+
+name: Build LiveFaceFX APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/build-apk.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download project
+        uses: actions/checkout@v4
+
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build Android APK
+        working-directory: examples/face_landmarker/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Save APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: LiveFaceFX-debug
+          path: examples/face_landmarker/android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
